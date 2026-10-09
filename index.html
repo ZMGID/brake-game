@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>《刹不住的境界》</title>
+<meta name="description" content="百公里急刹，踏板会不会「咯嚓」？后排萃浓缩，前排踩空气。纯属虚构恶搞小游戏，如有雷同，请检查你的刹车。">
+<meta name="theme-color" content="#111111">
+<link rel="canonical" href="https://zmgid.github.io/brake-game/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="刹不住的境界">
+<meta property="og:title" content="《刹不住的境界》断界V八百极限制动模拟器">
+<meta property="og:description" content="百公里急刹，踏板会不会「咯嚓」？后排萃浓缩，前排踩空气。纯属虚构恶搞小游戏，如有雷同，请检查你的刹车。">
+<meta property="og:url" content="https://zmgid.github.io/brake-game/">
+<meta property="og:image" content="https://zmgid.github.io/brake-game/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="《刹不住的境界》后排萃浓缩，前排踩空气。">
+<meta property="og:locale" content="zh_CN">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="《刹不住的境界》断界V八百极限制动模拟器">
+<meta name="twitter:description" content="百公里急刹，踏板会不会「咯嚓」？后排萃浓缩，前排踩空气。纯属虚构恶搞小游戏，如有雷同，请检查你的刹车。">
+<meta name="twitter:image" content="https://zmgid.github.io/brake-game/og.png">
+<meta name="twitter:image:alt" content="《刹不住的境界》后排萃浓缩，前排踩空气。">
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+html,body{margin:0;height:100%;background:#111;overflow:hidden;font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei","Noto Sans CJK SC","Noto Serif CJK SC",sans-serif;color:#fff}
+#c{position:fixed;inset:0;width:100%;height:100%;touch-action:none;display:block}
+.hidden{display:none!important}
+#ui{position:fixed;left:0;right:0;bottom:0;padding:8px 10px calc(10px + env(safe-area-inset-bottom));display:flex;align-items:flex-end;gap:8px;pointer-events:none}
+#tools{display:flex;flex-wrap:wrap;gap:6px;flex:1;pointer-events:auto}
+.tool{border:2px solid #fff3;background:#000a;color:#fff;border-radius:12px;padding:8px 10px;font-size:14px;font-weight:700;min-width:64px;touch-action:none;cursor:pointer;line-height:1.15;text-align:center}
+.tool small{display:block;font-size:10px;opacity:.7;font-weight:400}
+.tool.ready{border-color:#ffd23f;background:#3a2a00cc;animation:pulse .8s infinite alternate}
+.tool.used{opacity:.35}
+.tool.locked{opacity:.3}
+@keyframes pulse{to{box-shadow:0 0 14px #ffd23f}}
+#pedal{pointer-events:auto;width:118px;height:118px;border-radius:22px;border:3px solid #fff5;background:linear-gradient(#444,#222);color:#fff;font-size:22px;font-weight:900;touch-action:none;cursor:pointer;flex:none;box-shadow:0 6px 0 #000}
+#pedal.down{transform:translateY(5px);box-shadow:0 1px 0 #000;background:linear-gradient(#a33,#611)}
+#pedal.broken{background:repeating-linear-gradient(45deg,#333 0 10px,#222 10px 20px);color:#f55;font-size:17px}
+#pedal small{display:block;font-size:11px;font-weight:400;opacity:.75}
+.screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000c;z-index:10;padding:16px}
+.card{background:#fffdf5;color:#222;border-radius:18px;max-width:440px;width:100%;padding:22px 20px;text-align:center;box-shadow:0 10px 40px #000;max-height:94vh;overflow:auto}
+.card h1{margin:0 0 4px;font-size:34px;letter-spacing:2px;color:#c1121f}
+.card h2{margin:0 0 10px;font-size:20px;color:#c1121f}
+.card p{margin:6px 0;font-size:14px;line-height:1.6}
+.btn{display:block;width:100%;margin:8px 0;padding:13px;border-radius:12px;border:none;font-size:17px;font-weight:800;cursor:pointer;background:#c1121f;color:#fff;box-shadow:0 4px 0 #7a0b13}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 #7a0b13}
+.btn.alt{background:#222;box-shadow:0 4px 0 #000}
+.btn.pr{background:#1d3557;box-shadow:0 4px 0 #0b1a2e;text-align:left;font-size:16px}
+.btn.pr small{display:block;font-weight:400;font-size:12px;opacity:.75;margin-top:2px}
+.foot{font-size:11px;color:#888;margin-top:10px}
+.keys{font-size:12px;color:#555;background:#f1ece0;border-radius:10px;padding:8px;margin:10px 0;text-align:left;line-height:1.7}
+#endImg{width:100%;border-radius:10px;display:block;margin:0 auto 8px;box-shadow:0 4px 16px #0004}
+#toast{position:fixed;left:50%;top:18%;transform:translateX(-50%);background:#000d;color:#fff;padding:10px 16px;border-radius:10px;z-index:20;font-size:14px}
+#takedown{position:fixed;inset:0;z-index:15;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#aaa;font-size:15px;text-align:center;gap:12px}
+#takedown .ico{width:70px;height:70px;border-radius:50%;border:4px solid #555;display:flex;align-items:center;justify-content:center;font-size:40px;color:#666}
+#takedown .spin{width:34px;height:34px;border:4px solid #333;border-top-color:#aaa;border-radius:50%;animation:sp 0.8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+#disc{position:fixed;right:8px;top:34px;font-size:10px;color:#fff8;pointer-events:none;z-index:5}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="disc">纯属虚构恶搞，如有雷同，请检查你的刹车</div>
+
+<div id="ui" class="hidden">
+  <div id="tools"></div>
+  <button id="pedal">刹车<small>按住 空格</small></button>
+</div>
+
+<div id="title" class="screen">
+  <div class="card">
+    <div style="font-size:12px;color:#888;letter-spacing:3px">不懂车帝 · 极限测试场 出品</div>
+    <h1>刹不住的境界</h1>
+    <div style="font-size:15px;font-weight:700;margin-bottom:6px">断界 V八百 · 百公里极限制动模拟器</div>
+    <p>江湖汽车旗舰 MPV，售价 <b>101.6 万</b>，后排冰箱＋咖啡机。<br>你的任务：从 <b>100 km/h</b> 刹停它。标准答案 <b>38 米</b>。</p>
+    <p style="color:#c1121f;font-weight:700">⚠ 刹车踏板支架为高级塑料（耐久度随机）</p>
+    <div class="keys">
+      🦶 <b>按住 空格 / ↓ / 右下角大按钮</b>：踩刹车（踩太狠会「咯嚓」）<br>
+      🛠 <b>支架断了之后</b>：数字键 <b>1-5</b> 或点按钮，就地取材刹车<br>
+      &nbsp;&nbsp;&nbsp;1 P挡 · 2 手刹 · 3 冰箱降落伞 · 4 咖啡反推 · 5/F 乘客脚刹（狂按）<br>
+      📉 一共测 <b>三台</b>，因为「一台是断界，一台是断界，还有一台也是断界」
+    </div>
+    <button class="btn" id="startBtn">开始测试（Enter）</button>
+    <div style="font-size:13px;font-weight:700;color:#444">后排萃浓缩，前排踩空气。</div>
+    <div class="foot">纯属虚构恶搞，如有雷同，请检查你的刹车<br>本游戏品牌、机构、股票均为虚构，弹幕为网友吐槽的二创改写</div>
+  </div>
+</div>
+
+<div id="pr" class="screen hidden">
+  <div class="card">
+    <div style="font-size:12px;color:#888">断界汽车 · 公关部 · 紧急会议室</div>
+    <h2 id="prTitle">第1台刹车支架断了</h2>
+    <p id="prText">热搜已经第一了。请选择官方回应：</p>
+    <button class="btn pr" data-c="0">① 「测试太极端了」<small>正常车主不会这样踩刹车</small></button>
+    <button class="btn pr" data-c="1">② 「免费升级为钢制支架」<small>下一台支架更结实（大概）</small></button>
+    <button class="btn pr" data-c="2">③ 「建议车主不要踩刹车」<small>没有踏板，就不会踩断踏板</small></button>
+    <div class="foot">纯属虚构恶搞，如有雷同，请检查你的刹车</div>
+  </div>
+</div>
+
+<div id="takedown" class="hidden">
+  <div class="spin" id="tdSpin"></div>
+  <div class="ico hidden" id="tdIco">!</div>
+  <div id="tdText">正在加载《第2台测试完整版》……</div>
+  <div id="tdSub" style="font-size:12px;color:#666"></div>
+</div>
+
+<div id="end" class="screen hidden">
+  <div class="card">
+    <img id="endImg" alt="刹车鉴定报告">
+    <button class="btn" id="saveBtn">💾 保存鉴定报告图片</button>
+    <button class="btn alt" id="copyBtn">📋 复制分享文案</button>
+    <button class="btn alt" id="againBtn">🔁 再测三台（Enter）</button>
+    <div class="foot">纯属虚构恶搞，如有雷同，请检查你的刹车</div>
+  </div>
+</div>
+<div id="toast" class="hidden"></div>
+
+<script>
+(()=>{
+'use strict';
+// ======================= 基础 =======================
+const cv=document.getElementById('c'),ctx=cv.getContext('2d');
+let W=0,H=0,DPR=1;
+function resize(){DPR=Math.min(window.devicePixelRatio||1,2);W=innerWidth;H=innerHeight;cv.width=W*DPR|0;cv.height=H*DPR|0;ctx.setTransform(DPR,0,0,DPR,0,0);}
+addEventListener('resize',resize);resize();
+const $=id=>document.getElementById(id);
+const rand=(a,b)=>a+Math.random()*(b-a);
+const pick=a=>a[Math.random()*a.length|0];
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+
+// ======================= 声音（WebAudio 合成） =======================
+let AC=null,master=null,noiseBuf=null,engine=null,grind=null;
+function audio(){
+  if(AC){if(AC.state==='suspended')AC.resume();return;}
+  try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){return;}
+  master=AC.createGain();master.gain.value=0.6;master.connect(AC.destination);
+  noiseBuf=AC.createBuffer(1,AC.sampleRate*1.5,AC.sampleRate);
+  const d=noiseBuf.getChannelData(0);for(let i=0;i<d.length;i++)d[i]=Math.random()*2-1;
+  // engine
+  const o=AC.createOscillator();o.type='sawtooth';o.frequency.value=50;
+  const f=AC.createBiquadFilter();f.type='lowpass';f.frequency.value=380;
+  const g=AC.createGain();g.gain.value=0;o.connect(f);f.connect(g);g.connect(master);o.start();
+  engine={o,g};
+  // grind loop
+  const n=AC.createBufferSource();n.buffer=noiseBuf;n.loop=true;
+  const bf=AC.createBiquadFilter();bf.type='bandpass';bf.frequency.value=900;bf.Q.value=1.5;
+  const gg=AC.createGain();gg.gain.value=0;n.connect(bf);bf.connect(gg);gg.connect(master);n.start();
+  grind={g:gg,f:bf};
+}
+function noise(dur,type,freq,vol,q){
+  if(!AC)return;const t=AC.currentTime;
+  const s=AC.createBufferSource();s.buffer=noiseBuf;
+  const f=AC.createBiquadFilter();f.type=type;f.frequency.value=freq;if(q)f.Q.value=q;
+  const g=AC.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+  s.connect(f);f.connect(g);g.connect(master);s.start(t);s.stop(t+dur+0.05);return f;
+}
+function tone(freq,dur,type='sine',vol=0.2,toFreq=null,delay=0){
+  if(!AC)return;const t=AC.currentTime+delay;
+  const o=AC.createOscillator();o.type=type;o.frequency.setValueAtTime(freq,t);
+  if(toFreq)o.frequency.exponentialRampToValueAtTime(toFreq,t+dur);
+  const g=AC.createGain();g.gain.setValueAtTime(vol,t);g.gain.exponentialRampToValueAtTime(0.001,t+dur);
+  o.connect(g);g.connect(master);o.start(t);o.stop(t+dur+0.05);
+}
+const SFX={
+  crack(){noise(0.08,'highpass',2500,1.0);noise(0.35,'bandpass',1400,0.8,3);tone(1800,0.05,'square',0.3);tone(900,0.06,'square',0.25,null,0.04);tone(140,0.4,'sine',0.7,40);},
+  creak(){tone(rand(160,220),0.18,'sawtooth',0.06,rand(120,150));},
+  crash(){noise(1.2,'lowpass',500,1.0);tone(70,0.8,'sine',0.8,25);noise(0.3,'highpass',3000,0.4);},
+  whoosh(){const f=noise(0.7,'bandpass',300,0.6,0.8);if(f)f.frequency.exponentialRampToValueAtTime(2500,AC.currentTime+0.6);},
+  hiss(){noise(2.2,'highpass',2800,0.35);tone(600,0.15,'square',0.08);},
+  stomp(){tone(150,0.15,'sine',0.5,45);noise(0.08,'lowpass',800,0.3);},
+  clunk(){tone(220,0.1,'square',0.25,90);noise(0.12,'lowpass',1200,0.4);},
+  ding(){tone(880,0.15,'triangle',0.2);tone(1320,0.2,'triangle',0.15,null,0.08);},
+  pop(){tone(500,0.08,'sine',0.2,900);},
+  sad(){[392,370,349,294].forEach((f,i)=>tone(f,i==3?0.8:0.3,'triangle',0.18,i==3?260:null,i*0.3));},
+  fanfare(){[523,659,784,1047].forEach((f,i)=>tone(f,0.25,'square',0.08,null,i*0.12));}
+};
+
+// ======================= 弹幕（改写自 X 网友吐槽） =======================
+const DANMAKU=[
+ '我这辈子只听过三台车踩断刹车：一台断界，一台断界，还有一台也是断界',
+ '后排还在萃浓缩，前排踏板已经断在手里当纪念品了',
+ '等等，塑料件？刹车？一百万的车？？',
+ '面子做在看得见的地方，成本省在看不见的地方',
+ '下次买车先问一句：刹车踏板是什么做的？',
+ '别在车里聊测评！会自动收回刹车功能！',
+ '测试场断的是踏板，股市断的是股价，一个都刹不住',
+ '这下真领先了，领先到刹不住',
+ '阁下是什么界？在下刹不住的境界',
+ '建议起诉测试员：恶意踩踏刹车踏板',
+ '测试员练了一年腿专门来踩的吧',
+ '你不怕刹车断吗？怕，但更怕刹不住',
+ '断得像三胞胎一样整齐',
+ '踏板一脚能踩断，还能顺便当破窗器',
+ '这车是用来开的还是用来摆的？',
+ '这视频什么时候被下架？且看且珍惜',
+ '冰箱彩电大沙发，安全成本挪去内饰了',
+ '1612牛就断？这就是普通人急刹的力气啊',
+ '官方省流：免费升级，依旧遥遥领先',
+ '祝车主逢凶化吉、洪福齐天',
+ 'P挡：没想到吧，我才是主刹车',
+ '咖啡机：我也能出力！',
+ '把命交给一根塑料筋',
+ '前方高能 咯嚓！',
+ '笑不活了 但是不敢坐',
+ '百年汽车工业史的先河',
+ '三台车三个断口，位置一模一样，这就叫一致性'
+];
+let danmaku=[];
+function spawnDanmaku(text,color){
+  const t=text||pick(DANMAKU);
+  ctx.font=`700 ${W<600?14:18}px sans-serif`;const w=ctx.measureText(t).width;
+  const tails=[0,0,0,0,0];danmaku.forEach(d=>{tails[d.lane]=Math.max(tails[d.lane],d.x+d.w);});
+  let lane=0;for(let i=1;i<5;i++)if(tails[i]<tails[lane])lane=i;
+  danmaku.push({t,w,lane,x:Math.max(W+20,tails[lane]+40),y:124+lane*22,sp:W>800?130:100,c:color||pick(['#fff','#fff','#fff','#ffe66d','#9be7ff','#ffb3c1'])});
+}
+
+// ======================= 游戏状态 =======================
+const BENCH=38, LINE=0, WALL=172, CAR_L=5.3, V0=100/3.6;
+const TOOLS=[
+ {id:'p',k:'1',name:'P挡',sub:'咯噔咯噔'},
+ {id:'hb',k:'2',name:'手刹',sub:'它也是塑料'},
+ {id:'fr',k:'3',name:'冰箱伞',sub:'后排冰箱'},
+ {id:'cf',k:'4',name:'咖啡反推',sub:'一杯美式'},
+ {id:'ft',k:'5',name:'乘客脚刹',sub:'狂按 F'}
+];
+let G={phase:'title',round:0,results:[],stockPct:0,mods:{},shake:0,t:0,flash:0};
+let R=null; let particles=[]; let banners=[]; let floatTexts=[];
+const STOCK0=27.47;
+
+function newRound(){
+  const r=G.round;
+  const base=[[1250,1750],[1150,1650],[1050,1612]][r];
+  let limit=rand(base[0],base[1]);
+  const m=G.mods;
+  if(m.steel)limit+=450;
+  R={pos:-104,v:V0,force:0,limit,limit0:limit,snapped:false,pedalOff:!!m.noBrake,
+     tools:{p:{u:0,a:0,t:0},hb:{u:0,a:0,t:0},fr:{u:0,a:0,t:0},cf:{u:0,a:0,t:0},ft:{u:0,a:0,t:0}},
+     foot:0,startPos:null,crashed:false,peak:0,t:0,stopped:false,stopT:0,decel:0,wheel:0,
+     cues:{},usedList:[],creakT:0,snapForce:0,pitch:0};
+  particles=[];floatTexts=[];
+  const names=['第1台 · 全新出厂 · 里程 3 公里','第2台 · 再买一台 · 里程 5 公里','第3台 · 买来验证的 · 里程 3 公里'];
+  banner(names[r],'#fff',2.2,true);
+  if(m.steel)setTimeout(()=>banner('已免费升级「钢制」支架（钢色喷漆）','#9be7ff',2.2),1400);
+  if(m.noBrake)setTimeout(()=>banner('刹车功能已远程收回，请文明驾驶','#ffb3c1',2.4),1400);
+  if(m.extreme)setTimeout(()=>banner('本场测试已调整为「不极端」模式（还是100km/h）','#ffe66d',2.4),1400);
+  buildTools();updatePedal();
+}
+function banner(text,color,dur,big){while(banners.length>=2)banners.shift();banners.push({text,color:color||'#fff',t:0,dur:dur||1.6,big:!!big});}
+function floatText(text,color,size){floatTexts.push({text,color,size:size||40,t:0});}
+
+// ======================= UI =======================
+function buildTools(){
+  const box=$('tools');box.innerHTML='';
+  TOOLS.forEach(tl=>{
+    const b=document.createElement('button');b.className='tool';b.dataset.id=tl.id;
+    b.innerHTML=`${tl.k} ${tl.name}<small>${tl.sub}</small>`;
+    b.addEventListener('pointerdown',e=>{e.preventDefault();useTool(tl.id);});
+    box.appendChild(b);
+  });
+  refreshTools();
+}
+function toolsUnlocked(){return R&&(R.snapped||R.pedalOff);}
+function refreshTools(){
+  document.querySelectorAll('.tool').forEach(b=>{
+    const id=b.dataset.id;const st=R.tools[id];
+    b.classList.toggle('locked',!toolsUnlocked());
+    b.classList.toggle('ready',toolsUnlocked()&&!st.u&&!R.stopped);
+    b.classList.toggle('used',!!st.u&&id!=='ft');
+  });
+}
+function updatePedal(){
+  const p=$('pedal');
+  if(!R)return;
+  if(R.pedalOff){p.className='broken';p.innerHTML='已收回<small>请勿踩刹车</small>';}
+  else if(R.snapped){p.className='broken';p.innerHTML='咯嚓<small>踏板已离家出走</small>';}
+  else{p.className=braking?'down':'';p.innerHTML='刹车<small>按住 空格</small>';}
+}
+
+// ======================= 输入 =======================
+let braking=false;
+function setBrake(on){
+  if(braking===on)return;braking=on;
+  if(G.phase==='drive'&&on&&R){
+    if(R.pedalOff){floatText('刹车已收回','#ffb3c1',30);SFX.clunk();}
+    else if(R.snapped){floatText('踩空了…','#aaa',30);}
+  }
+  updatePedal();
+}
+addEventListener('keydown',e=>{
+  audio();
+  if(e.code==='Space'||e.code==='ArrowDown'||e.code==='KeyS'){e.preventDefault();if(!e.repeat)setBrake(true);}
+  else if(e.code==='Enter'){
+    if(G.phase==='title')startGame();else if(G.phase==='end')startGame();
+  }
+  else if(G.phase==='pr'&&['Digit1','Digit2','Digit3'].includes(e.code)){choosePR(+e.code.slice(-1)-1);}
+  else if(G.phase==='drive'){
+    const map={Digit1:'p',Digit2:'hb',Digit3:'fr',Digit4:'cf',Digit5:'ft',KeyF:'ft',Numpad1:'p',Numpad2:'hb',Numpad3:'fr',Numpad4:'cf',Numpad5:'ft'};
+    if(map[e.code]&&!(e.repeat&&map[e.code]==='ft'))useTool(map[e.code]);
+  }
+});
+addEventListener('keyup',e=>{if(e.code==='Space'||e.code==='ArrowDown'||e.code==='KeyS')setBrake(false);});
+const pedal=$('pedal');
+pedal.addEventListener('pointerdown',e=>{e.preventDefault();audio();pedal.setPointerCapture&&pedal.setPointerCapture(e.pointerId);setBrake(true);});
+['pointerup','pointercancel','pointerleave'].forEach(ev=>pedal.addEventListener(ev,()=>setBrake(false)));
+cv.addEventListener('pointerdown',()=>audio());
+$('startBtn').onclick=()=>{audio();startGame();};
+$('againBtn').onclick=()=>{audio();startGame();};
+document.querySelectorAll('#pr .btn').forEach(b=>b.onclick=()=>choosePR(+b.dataset.c));
+
+// ======================= 流程 =======================
+function startGame(){
+  G={phase:'drive',round:0,results:[],stockPct:0,mods:{},shake:0,t:G.t,flash:0};
+  danmaku=[];banners=[];
+  $('title').classList.add('hidden');$('end').classList.add('hidden');$('ui').classList.remove('hidden');
+  SFX.ding();newRound();
+  for(let i=0;i<3;i++)setTimeout(()=>spawnDanmaku(),i*500);
+}
+function stock(delta,why){
+  const before=G.stockPct;G.stockPct=Math.max(-99,G.stockPct+delta);
+  if(delta<0&&before>-10&&G.stockPct<=-10){banner('江湖汽车 跌停！','#ff4d4d',1.8);SFX.sad();}
+  if(why)floatText(`股价 ${delta>0?'+':''}${delta.toFixed(1)}%  ${why}`,delta<0?'#ff6b6b':'#4ade80',22);
+}
+function useTool(id){
+  if(G.phase!=='drive'||!R||R.stopped)return;
+  if(!toolsUnlocked()){floatText('刹车还没断，先踩刹车！','#ffe66d',26);SFX.clunk();return;}
+  const st=R.tools[id];
+  if(R.startPos===null)R.startPos=R.pos;
+  if(id==='ft'){
+    R.foot=Math.min(R.foot+1.3,6);st.u++;SFX.stomp();
+    if(st.u===1){banner('乘客们：把脚伸出去！','#ffe66d',1.4);R.usedList.push('ft');spawnDanmaku('老头乐同款脚刹','#ffe66d');}
+    for(let i=0;i<4;i++)particles.push({x:R.pos-rand(1.5,4),y:0.1,vx:rand(-6,-2),vy:rand(1,3),life:0.6,max:0.6,c:'#c9a46b',s:rand(3,7)});
+    return;
+  }
+  if(st.u)return;
+  st.u=1;st.a=1;st.t=0;R.usedList.push(id);
+  if(id==='p'){banner('挂入 P 挡！咯噔咯噔咯噔','#ffe66d',1.6);SFX.clunk();spawnDanmaku('P挡：没想到吧，我才是主刹车');}
+  if(id==='hb'){banner('拉起手刹！','#ffe66d',1.2);SFX.clunk();}
+  if(id==='fr'){banner('打开后排冰箱 → 展开降落伞！','#9be7ff',1.6);SFX.whoosh();spawnDanmaku('冰箱：我这辈子值了','#9be7ff');}
+  if(id==='cf'){banner('咖啡机反推：一杯美式，全力输出！','#e0b080',1.6);SFX.hiss();spawnDanmaku('咖啡机：我也能出力！','#e0b080');}
+  refreshTools();
+}
+function snap(){
+  R.snapped=true;R.snapForce=R.force;R.force=0;
+  G.shake=Math.max(G.shake,22);G.flash=0.35;
+  SFX.crack();
+  floatText('咯嚓！','#fff',96);
+  banner(`刹车踏板支架断裂（${Math.round(R.snapForce)} N）——启用应急方案 1-5！`,'#ff4d4d',2.6);
+  stock(-2.6,'热搜+1');
+  for(let i=0;i<5;i++)setTimeout(()=>spawnDanmaku(),i*250);
+  // 塑料碎片
+  for(let i=0;i<26;i++)particles.push({x:R.pos-1.2,y:0.6,vx:rand(-4,8),vy:rand(1,7),life:1.2,max:1.2,c:pick(['#222','#444','#666','#111']),s:rand(2,5),rot:rand(0,6)});
+  updatePedal();refreshTools();
+}
+function endRound(){
+  R.stopped=true;R.stopT=0;braking=false;updatePedal();
+  const dist=R.startPos===null?Infinity:(R.pos-R.startPos);
+  const res={dist:R.crashed?Math.max(dist,WALL-(R.startPos??0)):dist,crashed:R.crashed,snapped:R.snapped,tools:[...R.usedList],peak:R.peak,feet:R.tools.ft.u};
+  if(!isFinite(res.dist))res.dist=WALL;
+  G.results.push(res);
+  if(engine)engine.g.gain.setTargetAtTime(0,AC.currentTime,0.2);
+  if(grind)grind.g.gain.setTargetAtTime(0,AC.currentTime,0.1);
+  const ratio=res.dist/BENCH;
+  if(R.crashed){banner(`撞穿「免费升级」墙！记 ${res.dist.toFixed(1)} 米`,'#ff4d4d',2.6,true);stock(-4,'撞墙');}
+  else if(res.dist<=BENCH+2){banner(`刹停 ${res.dist.toFixed(1)} 米！达到出厂标准？？`,'#4ade80',2.6,true);SFX.fanfare();stock(+1.5,'奇迹');}
+  else{banner(`刹停距离 ${res.dist.toFixed(1)} 米（标准 38 米的 ${ratio.toFixed(1)} 倍）`,ratio>3?'#ff6b6b':'#ffe66d',2.6,true);if(ratio>3){SFX.sad();stock(-1.5,'140米俱乐部');}else SFX.ding();}
+  G.phase='after';
+  setTimeout(()=>{
+    if(G.round>=2){finish();return;}
+    if(G.round===1)takedownGag(()=>openPR());else openPR();
+  },2600);
+}
+function openPR(){
+  G.phase='pr';
+  const r=G.results[G.round];
+  $('prTitle').textContent=`第${G.round+1}台：${r.snapped?'刹车支架断了':'刹车……居然没断？'}`;
+  $('prText').innerHTML=`刹停 <b>${r.dist.toFixed(1)} 米</b>，股价 <b style="color:#c1121f">${G.stockPct.toFixed(2)}%</b>，热搜前十占六个。<br>请选择官方回应（键盘 1/2/3）：`;
+  $('pr').classList.remove('hidden');
+}
+function choosePR(c){
+  if(G.phase!=='pr')return;
+  $('pr').classList.add('hidden');SFX.ding();
+  G.mods={};
+  if(c===0){G.mods.extreme=true;stock(-3,'网友：踩刹车也算极端？');setTimeout(()=>{spawnDanmaku('极端？我踩个刹车也叫极端？','#ffe66d');spawnDanmaku('建议起诉测试员：恶意踩踏刹车踏板');},300);}
+  if(c===1){G.mods.steel=true;stock(+1.2,'免费升级');setTimeout(()=>spawnDanmaku('升级完先别急着踩','#9be7ff'),300);}
+  if(c===2){G.mods.noBrake=true;stock(-6,'史诗级公关');setTimeout(()=>{spawnDanmaku('没有踏板就不会踩断踏板，逻辑闭环','#ffb3c1');spawnDanmaku('别在车里聊测评！会自动收回刹车功能！');},300);}
+  G.round++;G.phase='drive';newRound();
+}
+function takedownGag(cb){
+  G.phase='gag';
+  const td=$('takedown');td.classList.remove('hidden');
+  $('tdSpin').classList.remove('hidden');$('tdIco').classList.add('hidden');
+  $('tdText').textContent='正在加载《第2台测试 · 完整版》……';$('tdSub').textContent='';
+  setTimeout(()=>{
+    $('tdSpin').classList.add('hidden');$('tdIco').classList.remove('hidden');SFX.clunk();
+    $('tdText').textContent='本视频已被下架';
+    $('tdSub').innerHTML='错误码：1612N · 原因：支架不想说话<br><br>（游戏内剧情，纯属虚构）';
+  },1100);
+  setTimeout(()=>{$('tdText').textContent='……但第3台已经买好了。继续测。';$('tdSub').textContent='';},2700);
+  setTimeout(()=>{td.classList.add('hidden');cb();},3700);
+}
+
+// ======================= 结算 =======================
+const TOOLNAME={p:'P挡',hb:'手刹',fr:'冰箱伞',cf:'咖啡反推',ft:'乘客脚刹'};
+function rankOf(res){
+  const best=Math.min(...res.map(r=>r.dist)),avg=res.reduce((a,r)=>a+r.dist,0)/res.length;
+  const cnt={};res.forEach(r=>r.tools.forEach(t=>cnt[t]=(cnt[t]||0)+1));
+  let fav=null,fc=0;for(const k in cnt)if(cnt[k]>fc){fc=cnt[k];fav=k;}
+  const crashes=res.filter(r=>r.crashed).length, intact=res.filter(r=>!r.snapped&&r.dist<=48).length;
+  let t,p;
+  if(intact>=2){t='羽毛脚·支架守护神';p='全程没敢使劲踩，支架感动得流下了塑料的眼泪。';}
+  else if(crashes>=2){t='免费升级破壁人';p='刹车没刹住，墙倒是先刹住了。';}
+  else if(avg>=115){t='140米俱乐部 终身VIP';p='标准38米，你刹出了一个足球场。';}
+  else if(fav==='ft'){t='人肉刹车大师';p='四位乘客，八只脚，一辆百万豪车，靠鞋底刹停。';}
+  else if(fav==='p'){t='P挡战神';p='刹车只是摆设，P挡才是信仰。';}
+  else if(fav==='fr'){t='冰箱伞兵';p='冰箱里的可乐全飞了，车停了。';}
+  else if(fav==='cf'){t='咖啡反推工程师';p='一杯美式的推力，是你对豪华的最后理解。';}
+  else if(fav==='hb'){t='手刹也断了大师';p='手刹表示：我和踏板是同一个供应商。';}
+  else if(best<=BENCH+3){t='懂车也懂刹车';p='你刹住了，但没人相信你开的是断界。';}
+  else{t='断界首席试车员';p='一台是断界，一台是断界，还有一台也是断界。';}
+  return {title:t,punch:p,best,avg,fav};
+}
+let lastShare='';
+function finish(){
+  G.phase='end';$('ui').classList.add('hidden');
+  const rk=rankOf(G.results);
+  const card=renderCard(rk);
+  let url='';try{url=card.toDataURL('image/png');}catch(e){}
+  $('endImg').src=url;$('end').classList.remove('hidden');
+  const link=/^https?:/.test(location.href)?' '+location.href.split('#')[0]:'';
+  lastShare=`我在《刹不住的境界》里开「断界V八百」百公里急刹，最好成绩 ${rk.best.toFixed(1)} 米（标准38米），荣获称号「${rk.title}」！后排萃浓缩，前排踩空气——你能刹住吗？#刹不住的境界${link}`;
+  $('saveBtn').onclick=()=>{
+    const a=document.createElement('a');a.href=url;a.download=`刹车鉴定报告-${rk.title}.png`;document.body.appendChild(a);a.click();a.remove();toast('已保存（手机可长按图片保存）');
+  };
+  $('copyBtn').onclick=()=>copyText(lastShare);
+  SFX.fanfare();
+}
+function toast(t){const el=$('toast');el.textContent=t;el.classList.remove('hidden');clearTimeout(toast._t);toast._t=setTimeout(()=>el.classList.add('hidden'),1800);}
+function copyText(t){
+  const fb=()=>{const ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('文案已复制，去分享吧');}catch(e){toast('复制失败，请手动复制');}ta.remove();};
+  if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(()=>toast('文案已复制，去分享吧'),fb);else fb();
+}
+function wrapText(c,text,x,y,maxW,lh){
+  let line='',yy=y;for(const ch of text){if(c.measureText(line+ch).width>maxW){c.fillText(line,x,yy);line=ch;yy+=lh;}else line+=ch;}
+  if(line)c.fillText(line,x,yy);return yy;
+}
+function renderCard(rk){
+  const w=750,h=1200,c2=document.createElement('canvas');c2.width=w;c2.height=h;const c=c2.getContext('2d');
+  const F='"PingFang SC","Microsoft YaHei","Noto Sans CJK SC","Noto Serif CJK SC",sans-serif';
+  c.fillStyle='#fffaf0';c.fillRect(0,0,w,h);
+  // 斜纹警示边
+  for(let i=-h;i<w;i+=40){c.fillStyle=(i/40|0)%2?'#111':'#ffd23f';c.beginPath();c.moveTo(i,0);c.lineTo(i+20,0);c.lineTo(i+20+24,24);c.lineTo(i+24,24);c.fill();c.beginPath();c.moveTo(i,h-24);c.lineTo(i+20,h-24);c.lineTo(i+44,h);c.lineTo(i+24,h);c.fill();}
+  c.textAlign='center';c.fillStyle='#c1121f';c.font=`900 74px ${F}`;c.fillText('刹车鉴定报告',w/2,128);
+  c.fillStyle='#555';c.font=`26px ${F}`;c.fillText('不懂车帝 · 极限测试场 · 断界 V八百 专项',w/2,172);
+  c.strokeStyle='#ddd';c.lineWidth=2;c.beginPath();c.moveTo(60,200);c.lineTo(w-60,200);c.stroke();
+  c.fillStyle='#888';c.font=`28px ${F}`;c.fillText('鉴定称号',w/2,256);
+  c.fillStyle='#111';c.font=`900 ${rk.title.length>8?58:70}px ${F}`;c.fillText(`「${rk.title}」`,w/2,340);
+  // 成绩
+  c.fillStyle='#c1121f';c.font=`900 120px ${F}`;c.fillText(rk.best.toFixed(1),w/2-40,500);
+  c.fillStyle='#111';c.font=`700 44px ${F}`;c.fillText('米',w/2+120,500);
+  c.fillStyle='#555';c.font=`26px ${F}`;c.fillText(`最佳刹停距离 · 标准值 38 米 · 是标准的 ${(rk.best/BENCH).toFixed(1)} 倍`,w/2,546);
+  // 三台车柱状
+  const top=600,maxD=Math.max(180,...G.results.map(r=>r.dist));
+  c.textAlign='left';
+  G.results.forEach((r,i)=>{
+    const y=top+i*86;c.fillStyle='#333';c.font=`700 28px ${F}`;c.fillText(`第${i+1}台`,60,y+34);
+    const bw=(w-300)*r.dist/maxD;c.fillStyle=r.crashed?'#c1121f':r.dist<=BENCH+3?'#22a35a':'#f4a261';c.fillRect(170,y+8,bw,36);
+    c.fillStyle='#111';c.font=`700 26px ${F}`;c.fillText(`${r.dist.toFixed(1)}m`,178+bw,y+36);
+    c.fillStyle='#777';c.font=`20px ${F}`;
+    const tl=r.tools.length?r.tools.filter((v,j,a)=>a.indexOf(v)===j).map(t=>TOOLNAME[t]).join('+'):(r.snapped?'踩空':'纯踏板');
+    c.fillText(`${r.snapped?'咯嚓':'未断'} · ${r.crashed?'撞墙 · ':''}${tl}`,170,y+70);
+  });
+  const bx=170+(w-300)*BENCH/maxD;c.strokeStyle='#22a35a';c.setLineDash([8,6]);c.lineWidth=3;c.beginPath();c.moveTo(bx,top-6);c.lineTo(bx,top+250);c.stroke();c.setLineDash([]);
+  c.fillStyle='#22a35a';c.font=`20px ${F}`;c.fillText('38m 标准',bx-40,top-12);
+  // punchline
+  c.textAlign='center';c.fillStyle='#222';c.font=`700 32px ${F}`;wrapText(c,rk.punch,w/2,905,w-120,44);
+  c.fillStyle='#c1121f';c.font=`900 40px ${F}`;c.fillText('后排萃浓缩，前排踩空气。',w/2,1010);
+  c.fillStyle='#555';c.font=`24px ${F}`;c.fillText(`江湖汽车（虚构）股价：${G.stockPct.toFixed(2)}%${G.stockPct<=-10?'（跌停）':''}`,w/2,1056);
+  c.fillStyle='#999';c.font=`20px ${F}`;c.fillText('#刹不住的境界  本报告随时可能「被下架」',w/2,1100);
+  c.fillText('纯属虚构恶搞，如有雷同，请检查你的刹车',w/2,1132);
+  // 印章
+  c.save();c.translate(600,420);c.rotate(-0.35);c.strokeStyle='#c1121fcc';c.lineWidth=6;c.beginPath();c.arc(0,0,82,0,Math.PI*2);c.stroke();c.beginPath();c.arc(0,0,68,0,Math.PI*2);c.lineWidth=2;c.stroke();
+  c.fillStyle='#c1121fcc';c.font=`900 30px ${F}`;c.textAlign='center';c.fillText('不懂车帝',0,-8);c.font=`700 22px ${F}`;c.fillText('刹车已鉴定',0,26);c.restore();
+  return c2;
+}
+
+// ======================= 物理更新 =======================
+function update(dt){
+  G.t+=dt;
+  G.shake*=Math.pow(0.02,dt);if(G.shake<0.3)G.shake=0;
+  G.flash=Math.max(0,G.flash-dt);
+  danmaku.forEach(d=>d.x-=d.sp*dt);danmaku=danmaku.filter(d=>d.x+d.w>-20);
+  banners.forEach(b=>b.t+=dt);banners=banners.filter(b=>b.t<b.dur);
+  floatTexts.forEach(f=>f.t+=dt);floatTexts=floatTexts.filter(f=>f.t<1.3);
+  particles.forEach(p=>{p.x+=p.vx*dt;p.y+=p.vy*dt;p.vy-=(p.g??9)*dt;p.life-=dt;if(p.y<0){p.y=0;p.vy*=-0.3;p.vx*=0.7;}});
+  particles=particles.filter(p=>p.life>0);
+  if(G.phase==='drive'&&Math.random()<dt*0.9)spawnDanmaku();
+  if(!R||(G.phase!=='drive'&&G.phase!=='after'))return;
+  R.t+=dt;
+  if(R.stopped){R.stopT+=dt;R.pitch*=0.9;return;}
+  // 提示
+  if(!R.cues.a&&R.pos>-45){R.cues.a=1;banner('前方制动线，准备……','#ffe66d',1.2);}
+  if(!R.cues.b&&R.pos>-6){R.cues.b=1;banner(R.pedalOff?'刹车已收回！直接用 1-5！':'现在！踩刹车！','#ff4d4d',1.2,true);SFX.ding();}
+  // 刹车力
+  if(braking&&!R.snapped&&!R.pedalOff){
+    R.force=Math.min(R.force+1900*dt,2400);
+    if(R.startPos===null&&R.force>200)R.startPos=R.pos;
+  }else R.force=Math.max(R.force-4200*dt,0);
+  R.peak=Math.max(R.peak,R.force);
+  // 疲劳：越踩越脆
+  if(R.force>900)R.limit-=(R.force-900)*0.09*dt;
+  if(!R.snapped&&!R.pedalOff){
+    const ratio=R.force/R.limit;
+    if(ratio>0.78){R.creakT-=dt;if(R.creakT<=0){SFX.creak();R.creakT=0.22;G.shake=Math.max(G.shake,2);}}
+    if(R.force>=R.limit)snap();
+  }
+  // 没刹车过线的，从线开始计
+  if(R.startPos===null&&R.pos>=LINE+4)R.startPos=LINE;
+  // 减速度
+  let a=0;
+  a+=9.6*Math.min(R.force,1750)/1600;
+  const T=R.tools;
+  if(T.p.a){T.p.t+=dt;a+=2.7;if(Math.random()<dt*30)particles.push({x:R.pos-4.2,y:0.05,vx:rand(-14,-6),vy:rand(1,4),life:0.4,max:0.4,c:pick(['#ffd23f','#ff9f1c','#fff']),s:2});}
+  if(T.hb.a){T.hb.t+=dt;a+=3.2;if(T.hb.t>2.4){T.hb.a=0;banner('咔——手刹也断了（同一供应商）','#ff6b6b',1.6);SFX.crack();G.shake=Math.max(G.shake,10);}}
+  if(T.fr.a){T.fr.t+=dt;a+=Math.min(1,T.fr.t*2)*(0.011*R.v*R.v+0.5);if(Math.random()<dt*8)particles.push({x:R.pos-CAR_L-0.3,y:1.2,vx:rand(-3,4),vy:rand(1,5),life:1.4,max:1.4,c:pick(['#e63946','#2a9d8f','#e9c46a','#f1faee']),s:5,can:1});}
+  if(T.cf.a){T.cf.t+=dt;a+=4.6;if(Math.random()<dt*50)particles.push({x:R.pos+0.2,y:rand(0.8,1.6),vx:rand(14,26)+R.v,vy:rand(-1,2),life:0.5,max:0.5,c:pick(['#6f4e37','#8b5a2b','#c8a27a','#fff8']),s:rand(3,7),g:0});if(T.cf.t>2.6){T.cf.a=0;banner('咖啡豆用完了','#e0b080',1.2);}}
+  if(R.foot>0){a+=R.foot;R.foot=Math.max(0,R.foot-1.6*dt);}
+  a+=0.15; // 风阻
+  R.decel=a;
+  R.v=Math.max(0,R.v-(R.pos>-10||R.startPos!==null?a:0)*dt);
+  R.pos+=R.v*dt;R.wheel+=R.v*dt/0.38;
+  R.pitch+=((R.v>0?Math.min(a,12):0)*0.0065-R.pitch)*Math.min(1,dt*8);
+  // 音
+  if(engine){engine.o.frequency.setTargetAtTime(35+R.v*3.2,AC.currentTime,0.05);engine.g.gain.setTargetAtTime(R.v>0.2?0.05:0,AC.currentTime,0.1);}
+  if(grind){const gv=(T.p.a?0.18:0)+(T.hb.a?0.12:0)+(R.force>300?0.05:0);grind.g.gain.setTargetAtTime(R.v>0.3?gv:0,AC.currentTime,0.05);}
+  if(R.force>400&&Math.random()<dt*10)particles.push({x:R.pos-rand(0.8,4.5),y:0.05,vx:-rand(2,6),vy:rand(0.5,1.5),life:0.7,max:0.7,c:'#bbb8',s:rand(6,12),g:-1});
+  // 撞墙
+  if(R.pos>=WALL-0.4){
+    R.pos=WALL-0.4;R.crashed=true;R.v=0;G.shake=34;G.flash=0.3;SFX.crash();floatText('轰！','#ff4d4d',100);
+    for(let i=0;i<30;i++)particles.push({x:WALL+rand(0,1),y:rand(0,3),vx:rand(2,14),vy:rand(2,10),life:1.6,max:1.6,c:pick(['#c68b59','#a0522d','#fff','#ffd23f']),s:rand(5,12),box:1});
+    endRound();return;
+  }
+  if(R.v<=0&&R.startPos!==null){endRound();}
+  if(Math.random()<dt*4)refreshTools();
+}
+
+// ======================= 绘制 =======================
+function draw(){
+  const ppm=clamp(W/(W<700?22:36),14,34);
+  const gy=H*0.64;
+  const camX=W*0.42;
+  const pos=R?R.pos:-20;
+  const sx=x=>camX+(x-pos)*ppm, sy=y=>gy-y*ppm;
+  ctx.save();
+  if(G.shake){ctx.translate(rand(-1,1)*G.shake,rand(-1,1)*G.shake);}
+  // 天空
+  const sk=ctx.createLinearGradient(0,0,0,gy);sk.addColorStop(0,'#5aa9e6');sk.addColorStop(1,'#cfe8ff');
+  ctx.fillStyle=sk;ctx.fillRect(-50,-50,W+100,gy+50);
+  // 远山
+  ctx.fillStyle='#8fb3c9';
+  for(let i=-2;i<8;i++){const off=((-pos*ppm*0.08)%400+400)%400;const x=i*400+off-400;ctx.beginPath();ctx.moveTo(x,gy-40);ctx.quadraticCurveTo(x+100,gy-170,x+200,gy-60);ctx.quadraticCurveTo(x+300,gy-130,x+400,gy-40);ctx.lineTo(x+400,gy);ctx.lineTo(x,gy);ctx.fill();}
+  // 看台/广告牌
+  const BB=['不懂车帝 · 极限测试场','断界V八百 · 尊贵无界','后排萃浓缩 · 前排踩空气','江湖汽车 · 安全第一(?)','本场地已投保'];
+  ctx.font=`700 ${Math.round(ppm*0.75)}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';
+  for(let k=Math.floor((pos-60)/45);k<=Math.floor((pos+60)/45);k++){
+    const x=k*45, X=camX+(x-pos)*ppm*0.6;
+    ctx.fillStyle='#555';ctx.fillRect(X-2,gy-ppm*4.6,4,ppm*1.2);ctx.fillRect(X+ppm*7-2,gy-ppm*4.6,4,ppm*1.2);
+    ctx.fillStyle=k%2?'#1d3557':'#c1121f';ctx.fillRect(X-ppm*0.5,gy-ppm*6.6,ppm*8,ppm*2.1);
+    ctx.fillStyle='#fff';ctx.fillText(BB[((k%BB.length)+BB.length)%BB.length],X+ppm*3.5,gy-ppm*5.55);
+  }
+  // 地面
+  ctx.fillStyle='#3a3d42';ctx.fillRect(-50,gy,W+100,H-gy+50);
+  ctx.fillStyle='#4caf50';ctx.fillRect(-50,gy-6,W+100,6);
+  // 车道线
+  ctx.fillStyle='#ddd';
+  for(let m=Math.floor((pos-60)/6)*6;m<pos+60;m+=6){ctx.fillRect(sx(m),gy+ppm*1.6,ppm*3,ppm*0.18);}
+  // 距离刻度
+  ctx.font=`${Math.round(clamp(ppm*0.5,10,15))}px sans-serif`;
+  for(let m=Math.floor((pos-50)/10)*10;m<pos+50;m+=10){
+    if(m<0)continue;ctx.fillStyle='#fff8';ctx.fillRect(sx(m)-1,gy,2,ppm*0.6);ctx.fillText(m+'m',sx(m),gy+ppm*1.0);
+  }
+  // 锥桶
+  for(let m=-100;m<=0;m+=10){const X=sx(m);if(X<-30||X>W+30)continue;ctx.fillStyle='#ff7b00';ctx.beginPath();ctx.moveTo(X-ppm*0.3,gy);ctx.lineTo(X,gy-ppm*0.8);ctx.lineTo(X+ppm*0.3,gy);ctx.fill();ctx.fillStyle='#fff';ctx.fillRect(X-ppm*0.15,gy-ppm*0.45,ppm*0.3,ppm*0.1);}
+  // 制动线
+  {const X=sx(LINE);ctx.fillStyle='#fff';for(let i=0;i<6;i++){ctx.fillStyle=i%2?'#111':'#fff';ctx.fillRect(X-4,gy+i*ppm*0.5,8,ppm*0.5);}
+   ctx.fillStyle='#ffd23f';ctx.font=`700 ${Math.round(clamp(ppm*0.6,11,18))}px sans-serif`;ctx.fillText('制动线 100km/h',X,gy-ppm*7.4);}
+  // 38m / 140m 线
+  if(R&&R.startPos!==null){
+    const lines=[[BENCH,'#4ade80','标准 38m'],[140,'#ff6b6b','140米俱乐部']];
+    lines.forEach(([d,c,t])=>{const X=sx(R.startPos+d);if(X<-50||X>W+50)return;ctx.strokeStyle=c;ctx.lineWidth=3;ctx.setLineDash([8,6]);ctx.beginPath();ctx.moveTo(X,gy-ppm*4);ctx.lineTo(X,gy+ppm*2.5);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle=c;ctx.font=`700 ${Math.round(clamp(ppm*0.6,11,18))}px sans-serif`;ctx.fillText(t,X,gy-ppm*4.4);});
+  }
+  // 墙
+  {const X=sx(WALL);if(X<W+200){
+    for(let r=0;r<4;r++)for(let c=0;c<2;c++){const bx=X+c*ppm*1.6,by=gy-(r+1)*ppm*1.2;if(R&&R.crashed&&r>1)continue;ctx.fillStyle='#c68b59';ctx.fillRect(bx,by,ppm*1.5,ppm*1.15);ctx.strokeStyle='#8b5a2b';ctx.strokeRect(bx,by,ppm*1.5,ppm*1.15);ctx.fillStyle='#5a3214';ctx.font=`700 ${Math.round(ppm*0.32)}px sans-serif`;ctx.fillText('免费升级',bx+ppm*0.75,by+ppm*0.58);}
+    ctx.fillStyle='#fff';ctx.font=`700 ${Math.round(clamp(ppm*0.55,11,16))}px sans-serif`;ctx.fillText('↓ 免费升级墙',X+ppm*1.6,gy-ppm*5.5);}}
+  // 车
+  if(R)drawCar(sx(R.pos),gy,ppm);
+  // 粒子
+  particles.forEach(p=>{const X=sx(p.x),Y=sy(p.y);ctx.globalAlpha=clamp(p.life/p.max,0,1);ctx.fillStyle=p.c;
+    if(p.can){ctx.fillRect(X-p.s*0.5,Y-p.s,p.s,p.s*1.7);}else if(p.box){ctx.fillRect(X,Y,p.s,p.s);}else{ctx.beginPath();ctx.arc(X,Y,p.s,0,7);ctx.fill();}});
+  ctx.globalAlpha=1;
+  ctx.restore();
+  // ====== HUD ======
+  drawTicker();
+  if(R&&(G.phase==='drive'||G.phase==='after'))drawHUD(ppm);
+  // 弹幕
+  ctx.textAlign='left';ctx.textBaseline='middle';ctx.font=`700 ${W<600?14:18}px sans-serif`;
+  danmaku.forEach(d=>{ctx.lineWidth=3;ctx.strokeStyle='#0008';ctx.strokeText(d.t,d.x,d.y);ctx.fillStyle=d.c;ctx.fillText(d.t,d.x,d.y);});
+  // 横幅
+  ctx.textAlign='center';
+  banners.forEach((b,i)=>{const a=Math.min(1,b.t*6,(b.dur-b.t)*4);ctx.globalAlpha=clamp(a,0,1);const fs=b.big?(W<600?22:32):(W<600?16:22);ctx.font=`900 ${fs}px sans-serif`;
+    const y=Math.max(H*0.36,236)+i*(fs+18);const tw=Math.min(ctx.measureText(b.text).width+30,W-10);ctx.fillStyle='#000a';ctx.fillRect(W/2-tw/2,y-fs*0.75,tw,fs*1.5);ctx.fillStyle=b.color;ctx.fillText(b.text,W/2,y,W-30);});
+  ctx.globalAlpha=1;
+  floatTexts.forEach((f,i)=>{const k=f.t/1.3;ctx.globalAlpha=1-k;const fs=f.size*(W<600?0.7:1)*(1+0.3*Math.max(0,0.15-f.t)*6);ctx.font=`900 ${fs}px sans-serif`;ctx.lineWidth=6;ctx.strokeStyle='#000';const y=Math.max(H*0.5,330)-k*60-i*6;ctx.strokeText(f.text,W/2,y);ctx.fillStyle=f.color;ctx.fillText(f.text,W/2,y);});
+  ctx.globalAlpha=1;
+  if(G.flash>0){ctx.fillStyle=`rgba(255,255,255,${G.flash*1.8})`;ctx.fillRect(0,0,W,H);}
+}
+function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+function drawCar(fx,gy,ppm){
+  const L=CAR_L*ppm,Hh=1.95*ppm,x0=fx-L,wr=0.38*ppm;
+  ctx.save();
+  ctx.translate(fx-L*0.4,gy-wr);ctx.rotate(R.pitch);ctx.translate(-(fx-L*0.4),-(gy-wr));
+  const by=gy-wr*1.25;
+  // 冰箱伞
+  const T=R.tools;
+  if(T.fr.u){
+    const k=Math.min(1,T.fr.t*2),px=x0-ppm*(2+3.5*k),py=by-Hh*0.9,rad=ppm*(0.6+1.4*k);
+    ctx.strokeStyle='#ddd';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(x0+2,by-Hh*0.5);ctx.lineTo(px+rad*0.3,py-rad);ctx.moveTo(x0+2,by-Hh*0.5);ctx.lineTo(px+rad*0.3,py+rad);ctx.stroke();
+    ctx.fillStyle='#e9f5ff';ctx.beginPath();ctx.ellipse(px,py,rad*0.45,rad,0,Math.PI/2,Math.PI*1.5);ctx.fill();ctx.strokeStyle='#9be7ff';ctx.lineWidth=3;ctx.stroke();
+    ctx.fillStyle='#1d3557';ctx.font=`700 ${Math.round(ppm*0.35)}px sans-serif`;ctx.textAlign='center';ctx.fillText('冰箱',px-rad*0.2,py);
+  }
+  // 车身
+  const g=ctx.createLinearGradient(0,by-Hh,0,by);g.addColorStop(0,'#2b2d42');g.addColorStop(0.5,'#14151f');g.addColorStop(1,'#0a0a10');
+  ctx.fillStyle=g;rr(x0,by-Hh,L,Hh,ppm*0.35);ctx.fill();
+  // 双色腰线（香槟金）
+  ctx.fillStyle='#c9b37e';ctx.fillRect(x0+ppm*0.2,by-Hh*0.45,L-ppm*0.4,ppm*0.08);
+  // 窗
+  ctx.fillStyle='#1b263b';rr(x0+ppm*0.4,by-Hh*0.92,L*0.78,Hh*0.36,ppm*0.15);ctx.fill();
+  ctx.fillStyle='#5c7fa3';rr(x0+L*0.83,by-Hh*0.92,L*0.12,Hh*0.36,ppm*0.12);ctx.fill();
+  ctx.strokeStyle='#000';ctx.lineWidth=2;[0.3,0.55].forEach(k=>{ctx.beginPath();ctx.moveTo(x0+L*k,by-Hh*0.92);ctx.lineTo(x0+L*k,by-Hh*0.2);ctx.stroke();});
+  // 乘客头
+  ctx.fillStyle='#f1c27d';[0.2,0.42,0.68].forEach(k=>{ctx.beginPath();ctx.arc(x0+L*k,by-Hh*0.68,ppm*0.2,0,7);ctx.fill();});
+  // 司机
+  ctx.beginPath();ctx.arc(x0+L*0.86,by-Hh*0.68,ppm*0.2,0,7);ctx.fill();
+  if(R.snapped||R.pedalOff){ctx.fillStyle='#000';ctx.font=`900 ${Math.round(ppm*0.4)}px sans-serif`;ctx.textAlign='center';ctx.fillText('😱',x0+L*0.86,by-Hh*1.05);}
+  // 咖啡杯在后排
+  ctx.fillStyle='#fff';ctx.fillRect(x0+L*0.3,by-Hh*0.5,ppm*0.18,ppm*0.2);
+  // 前脸格栅（大号）
+  ctx.fillStyle='#c0c0c0';rr(fx-ppm*0.28,by-Hh*0.55,ppm*0.24,Hh*0.42,ppm*0.06);ctx.fill();
+  ctx.fillStyle='#fffbe0';ctx.fillRect(fx-ppm*0.2,by-Hh*0.62,ppm*0.18,ppm*0.12);
+  // 尾灯
+  ctx.fillStyle='#e63946';ctx.fillRect(x0,by-Hh*0.6,ppm*0.12,ppm*0.4);
+  // 车标：断
+  ctx.fillStyle='#c9b37e';ctx.beginPath();ctx.arc(x0+L*0.92,by-Hh*0.32,ppm*0.22,0,7);ctx.fill();ctx.fillStyle='#14151f';ctx.font=`900 ${Math.round(ppm*0.28)}px sans-serif`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('断',x0+L*0.92,by-Hh*0.31);
+  // 侧标
+  ctx.fillStyle='#c9b37e';ctx.font=`700 ${Math.round(ppm*0.3)}px sans-serif`;ctx.fillText('V八百',x0+L*0.15,by-Hh*0.28);
+  // 咖啡反推
+  if(T.cf.a){ctx.fillStyle='#6f4e37';ctx.beginPath();ctx.moveTo(fx,by-Hh*0.5);ctx.lineTo(fx+ppm*(2+Math.random()*1.5),by-Hh*0.7);ctx.lineTo(fx+ppm*(2+Math.random()*1.5),by-Hh*0.2);ctx.fill();}
+  // 脚
+  if(R.foot>0.2){ctx.fillStyle='#f1c27d';ctx.strokeStyle='#333';[0.22,0.35,0.5,0.62].forEach((k,i)=>{const X=x0+L*k+Math.sin(G.t*30+i)*ppm*0.1;ctx.fillRect(X,by-ppm*0.1,ppm*0.16,wr*1.3);ctx.fillStyle='#e63946';ctx.fillRect(X-ppm*0.08,gy-ppm*0.16,ppm*0.32,ppm*0.16);ctx.fillStyle='#f1c27d';});}
+  // 轮
+  [x0+L*0.18,x0+L*0.8].forEach(wx=>{ctx.fillStyle='#111';ctx.beginPath();ctx.arc(wx,gy-wr,wr,0,7);ctx.fill();ctx.fillStyle='#bbb';ctx.beginPath();ctx.arc(wx,gy-wr,wr*0.55,0,7);ctx.fill();
+    ctx.strokeStyle='#555';ctx.lineWidth=2;for(let i=0;i<5;i++){const a=R.wheel+i*1.2566;ctx.beginPath();ctx.moveTo(wx,gy-wr);ctx.lineTo(wx+Math.cos(a)*wr*0.55,gy-wr+Math.sin(a)*wr*0.55);ctx.stroke();}});
+  ctx.restore();
+}
+function drawTicker(){
+  ctx.fillStyle='#000c';ctx.fillRect(0,0,W,30);
+  const p=G.stockPct,price=STOCK0*(1+p/100);
+  ctx.font='700 14px sans-serif';ctx.textBaseline='middle';ctx.textAlign='left';
+  const s=`江湖汽车(虚构) JH888  ¥${price.toFixed(2)}  ${p<0?'▼':'▲'} ${p.toFixed(2)}%${p<=-10?'  跌停':''}`;
+  ctx.fillStyle=p<0?'#ff4d4d':'#4ade80';ctx.fillText(s,10,15);
+  const sw=ctx.measureText(s).width+24;
+  const news='  ★ 突发：断界V八百 刹车踏板支架三连断  ★ 官方：测试太极端  ★ 网友：一台是断界，一台是断界，还有一台也是断界  ★ 冰箱、咖啡机工作正常  ★ 本台消息随时可能被下架 ';
+  ctx.save();ctx.beginPath();ctx.rect(sw,0,W-sw,30);ctx.clip();ctx.fillStyle='#ffd23f';ctx.font='13px sans-serif';
+  const nw=ctx.measureText(news).width;const off=(G.t*60)%nw;ctx.fillText(news+news,sw-off,15);ctx.restore();
+}
+function drawHUD(ppm){
+  const sm=W<600;
+  // 速度
+  const kmh=R.v*3.6;
+  ctx.textAlign='left';ctx.textBaseline='alphabetic';
+  ctx.fillStyle='#000a';rr(10,40,sm?140:180,sm?62:76,10);ctx.fill();
+  ctx.fillStyle=kmh>60?'#ff6b6b':kmh>20?'#ffe66d':'#4ade80';ctx.font=`900 ${sm?34:44}px sans-serif`;ctx.fillText(kmh.toFixed(0),20,sm?84:98);
+  ctx.fillStyle='#fff';ctx.font='12px sans-serif';ctx.fillText('km/h',sm?86:112,sm?84:98);ctx.fillText(`第${G.round+1}/3台`,20,sm?56:58);
+  // 距离
+  const d=R.startPos===null?0:R.pos-R.startPos;
+  ctx.fillStyle='#000a';rr(W-(sm?150:190),40,sm?140:180,sm?62:76,10);ctx.fill();
+  ctx.fillStyle=d>140?'#ff4d4d':d>BENCH?'#ffe66d':'#fff';ctx.font=`900 ${sm?30:40}px sans-serif`;ctx.textAlign='right';ctx.fillText(d.toFixed(1)+'m',W-20,sm?84:98);
+  ctx.fillStyle='#fff';ctx.font='12px sans-serif';ctx.fillText('制动距离 / 标准38m',W-20,58);
+  ctx.textAlign='left';
+  // 脚部特写 + 踏板力
+  const bw=sm?120:160,bh=sm?96:120,bx=10,by=H*0.64+ (sm?10:20);
+  if(by+bh>H-140&&sm){} // 手机上可能与按钮重叠，保持
+  ctx.fillStyle='#000b';rr(bx,by,bw,bh,10);ctx.fill();
+  ctx.fillStyle='#fff';ctx.font='11px sans-serif';ctx.fillText('脚部特写',bx+8,by+15);
+  const ratio=R.pedalOff?0:R.force/R.limit0;
+  const px=bx+bw*0.55,py=by+28;
+  // 支架
+  ctx.fillStyle=R.snapped?'#555':`rgb(${150+100*Math.min(1,ratio)},${150-100*Math.min(1,ratio)},${150-100*Math.min(1,ratio)})`;
+  ctx.fillRect(px-14,py-6,28,16);
+  if(!R.snapped&&ratio>0.5){ctx.strokeStyle='#000';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(px-6,py-6);ctx.lineTo(px-2,py+2);ctx.lineTo(px-7,py+10);if(ratio>0.75){ctx.moveTo(px+6,py-6);ctx.lineTo(px+3,py+4);}ctx.stroke();}
+  if(R.pedalOff){ctx.fillStyle='#ffb3c1';ctx.font='700 13px sans-serif';ctx.fillText('踏板已收回',bx+20,by+bh*0.6);}
+  else if(!R.snapped){
+    const ang=0.35+Math.min(R.force,1800)/1800*0.5;
+    ctx.strokeStyle='#ccc';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(px,py+4);const ex=px+Math.sin(ang)*(bh*0.55),ey=py+4+Math.cos(ang)*(bh*0.55);ctx.lineTo(ex,ey);ctx.stroke();
+    ctx.fillStyle='#888';ctx.fillRect(ex-10,ey-4,20,8);
+    ctx.fillStyle='#e63946';ctx.beginPath();ctx.ellipse(ex-4,ey-12-(braking?0:6),14,7,-0.3,0,7);ctx.fill();
+  }else{
+    ctx.strokeStyle='#ccc';ctx.lineWidth=5;ctx.beginPath();ctx.moveTo(px-30,by+bh-14);ctx.lineTo(px+10,by+bh-10);ctx.stroke();
+    ctx.fillStyle='#ff4d4d';ctx.font='900 18px sans-serif';ctx.fillText('咯嚓',bx+8,by+bh*0.55);
+  }
+  // 踏板力条
+  const gx=bx+bw+8,gw=sm?14:18;
+  ctx.fillStyle='#000b';rr(gx,by,gw+(sm?44:56),bh,8);ctx.fill();
+  ctx.fillStyle='#333';ctx.fillRect(gx+6,by+8,gw,bh-16);
+  const fk=Math.min(R.force,2000)/2000;
+  ctx.fillStyle=ratio>0.78?'#ff4d4d':ratio>0.5?'#ffd23f':'#4ade80';ctx.fillRect(gx+6,by+8+(bh-16)*(1-fk),gw,(bh-16)*fk);
+  const ly=by+8+(bh-16)*(1-2000/2000*0+0);ctx.fillStyle='#fff';ctx.font='10px sans-serif';
+  ctx.fillText(Math.round(R.force)+'N',gx+gw+9,by+bh-12);ctx.fillText('国标',gx+gw+9,by+14);ctx.fillText('2000N',gx+gw+9,by+26);
+  ctx.fillText('支架',gx+gw+9,by+bh*0.55);ctx.fillText('???N',gx+gw+9,by+bh*0.55+12);
+  // 减速度
+  if(R.decel>0.5&&!R.stopped&&R.startPos!==null){ctx.fillStyle='#fff';ctx.font='12px sans-serif';ctx.fillText(`减速度 ${(R.decel/9.8).toFixed(2)} g`,gx+gw+(sm?50:62),by+bh-6);}
+}
+
+// ======================= 主循环 =======================
+let last=performance.now();
+function loop(now){
+  const dt=Math.min(0.05,(now-last)/1000);last=now;
+  update(dt);draw();requestAnimationFrame(loop);
+}
+// 标题页背景：先放一台车慢慢开
+R=null;newRoundDemo();
+function newRoundDemo(){G.round=0;R={pos:-30,v:8,force:0,limit:1500,limit0:1500,snapped:false,pedalOff:false,tools:{p:{u:0,a:0,t:0},hb:{u:0,a:0,t:0},fr:{u:0,a:0,t:0},cf:{u:0,a:0,t:0},ft:{u:0,a:0,t:0}},foot:0,startPos:null,crashed:false,peak:0,t:0,stopped:false,stopT:0,decel:0,wheel:0,cues:{},usedList:[],creakT:0,pitch:0};}
+const demoTick=setInterval(()=>{if(G.phase==='title'&&R){R.pos+=0.05*8;R.wheel+=1;if(R.pos>-10)R.pos=-60;if(Math.random()<0.3)spawnDanmaku();}else clearInterval(demoTick);},50);
+if(/[?&]test=1(&|$)/.test(location.search))window.__brake={get G(){return G},get R(){return R},startGame,useTool,setBrake};
+requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>
